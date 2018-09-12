@@ -1,10 +1,49 @@
 #cs ----------------------------------------------------------------------------
 
- AutoIt Version: 3.3.14.2
- Author:         MingguiLu
+AutoIt Version: 3.3.14.2
+Author:     Miguel Louis
 
- Script Function:
-	  自动化配置工具
+Script Function:
+  Helpdesk_Automatic_configuration_Tool
+
+关于Helpdesk_Automatic_configuration_Tool
+Helpdesk_Automatic_configuration_Tool是一款Helpdesk桌面运维自动化配置的工具，由类BASIC语言的AutoIt v3 脚本编写，用于简化Helpdesk大量繁复的操作，通过GUI交互，实现以下功能，大幅解放Helpdesk桌面工程师的时间和精力，用于更高的技术学习和提升。
+1. 自动设置系统选项
+2. 客户端自动加域
+3. 自动安装软件
+4. 自动重启电脑并登录域账户
+5. 自动配置桌面环境
+6. 自动配置outlook及skype等
+
+配置说明：
+以下代码位于134 ~ 144行，user-defined部分请根据实际需求和场景自定义
+
+Global $rootUserName = "administrator" ;本地管理员administrator
+Global $rootPassword = "user-defined"  ;本地管理员密码
+
+Global $createUserName = "admin"  ;创建本地用户名
+Global $createUserPassword = "user-defined" ;设置本地用户名密码
+
+Global $domainName = "user-defined" ;AD域名，
+Global $itUserName = "user-defined" ;IT管理员域账户
+Global $itPassword = "user-defined" ;IT管理员域账户密码
+
+Global $fileSrvPath = "user-defined" ;安装文件所在的共享目录地址
+
+Global $userName	 ;用户域账号
+Global $userPassword ;用户域账户密码
+Global $hostName     ;用户计算机名
+
+使用说明：
+1. 该自动化运维工具适用于Microsoft Windows 7、Windows 8、Windows 10系统，结合企业级系统部署平台MDT使用更优
+2. 配置选项用于根据不同部门员工的桌面使用需求自动进行系统设置、安装软件等初始化操作，需在administraor账户下运行
+3. 用户选项用于根据不用部门员工的桌面使用需求自动进行桌面环境配置，outlook、skype等办公软件登录设置，需在用于账户下运行
+4. 自动重启系统+登录账户 通过授予用户本地管理员权限并修改注册表实现，在系统重启自动登录用户账户后，需运行取消自动登录 和 取消管理员权限来重置注册表并从administrators组移出用户账户
+5. 可根据各自公司内部的实际桌面运维需求，修改该脚本代码，从而添加、修改或删除自动化功能模块
+6. 所需安装的软件和工具下载放置于$fileSrvPath下，并根据存放路径和软件名称修改对应模块的代码
+
+技术支持：
+QQ: 3251076037
 
 #ce ----------------------------------------------------------------------------
 
@@ -45,13 +84,13 @@ Func _main()
    Global $select_width = 50
    Global $select_height = 30
 
-   GUICreate("自动化配置工具 V0.5  - By MingguiLu", $gui_width, $gui_height)
+   GUICreate("自动化配置工具 V1.0  - By Miguel Louis", $gui_width, $gui_height)
 
    GUICtrlCreateGroup("系统设置", $checkbox_left, $sysconf_top, $gui_width-10, $gui_height/3-30)
    $Checkbox[1] = GUICtrlCreateCheckbox("修改计算机名并加域", $checkbox_left+5, $sysconf_top+20, $checkbox_width, $checkbox_height)
    $Checkbox[2] = GUICtrlCreateCheckbox("修改管理员密码", $checkbox_left+160, $sysconf_top+20, $checkbox_width, $checkbox_height)
-   $Checkbox[3] = GUICtrlCreateCheckbox("创建Admin用户", $checkbox_left+320, $sysconf_top+20, $checkbox_width, $checkbox_height)
-   $Checkbox[4] = GUICtrlCreateCheckbox("添加IT服务台", $checkbox_left+5, $sysconf_top+50, $checkbox_width, $checkbox_height)
+   $Checkbox[3] = GUICtrlCreateCheckbox("创建本地用户admin", $checkbox_left+320, $sysconf_top+20, $checkbox_width, $checkbox_height)
+   $Checkbox[4] = GUICtrlCreateCheckbox("添加IT管理员组", $checkbox_left+5, $sysconf_top+50, $checkbox_width, $checkbox_height)
    $Checkbox[5] = GUICtrlCreateCheckbox("开启远程桌面", $checkbox_left+160, $sysconf_top+50, $checkbox_width, $checkbox_height)
    $Checkbox[6] = GUICtrlCreateCheckbox("安装AD证书", $checkbox_left+320, $sysconf_top+50, $checkbox_width, $checkbox_height)
    $Checkbox[7] = GUICtrlCreateCheckbox("激活Office", $checkbox_left+5, $sysconf_top+80, $checkbox_width, $checkbox_height)
@@ -68,15 +107,15 @@ Func _main()
    $Checkbox[28] = GUICtrlCreateCheckbox("Teamviewer10", $checkbox_left+160, $install_top+80, $checkbox_width, $checkbox_height)
 
    GUICtrlCreateGroup("配置选项",$select_left, $select_top, $gui_width-10, $gui_height/3-100)
-   Global $Radio1 = GUICtrlCreateRadio("驻地", $select_left+5, $select_top+20, $select_width, $select_height)
-   Global $Radio2 = GUICtrlCreateRadio("驻地(含VPN)", $select_left+55, $select_top+20, $select_width+40, $select_height)
-   Global $Radio3 = GUICtrlCreateRadio("信审", $select_left+150, $select_top+20, $select_width, $select_height)
-   Global $Radio4 = GUICtrlCreateRadio("催收", $select_left+200, $select_top+20, $select_width, $select_height)
+   Global $Radio1 = GUICtrlCreateRadio("销售", $select_left+5, $select_top+20, $select_width, $select_height)
+   Global $Radio2 = GUICtrlCreateRadio("销售(含VPN)", $select_left+55, $select_top+20, $select_width+40, $select_height)
+   Global $Radio3 = GUICtrlCreateRadio("运营", $select_left+150, $select_top+20, $select_width, $select_height)
+   Global $Radio4 = GUICtrlCreateRadio("售后", $select_left+200, $select_top+20, $select_width, $select_height)
 
    GUICtrlCreateGroup("用户选项",$select_left, $user_top, $gui_width-10, $gui_height/3-100)
-   $Checkbox[43] = GUICtrlCreateCheckbox("驻地", $checkbox_left+5, $user_top+20, $checkbox_width-100, $checkbox_height+10)
-   $Checkbox[44] = GUICtrlCreateCheckbox("信审", $checkbox_left+65, $user_top+20, $checkbox_width-100, $checkbox_height+10)
-   $Checkbox[45] = GUICtrlCreateCheckbox("催收", $checkbox_left+135, $user_top+20, $checkbox_width-100, $checkbox_height+10)
+   $Checkbox[43] = GUICtrlCreateCheckbox("销售", $checkbox_left+5, $user_top+20, $checkbox_width-100, $checkbox_height+10)
+   $Checkbox[44] = GUICtrlCreateCheckbox("运营", $checkbox_left+65, $user_top+20, $checkbox_width-100, $checkbox_height+10)
+   $Checkbox[45] = GUICtrlCreateCheckbox("售后", $checkbox_left+135, $user_top+20, $checkbox_width-100, $checkbox_height+10)
    $Checkbox[41] = GUICtrlCreateCheckbox("取消自动登录", $checkbox_left+205, $user_top+20, $checkbox_width-50, $checkbox_height+10)
    $Checkbox[42] = GUICtrlCreateCheckbox("取消管理员权限", $checkbox_left+305, $user_top+20, $checkbox_width-50, $checkbox_height+10)
 
@@ -124,9 +163,9 @@ Func _main()
    $_run[41] = _run41 ;取消自动登录
    $_run[42] = _run42 ;取消管理员权限
 
-   $_run[43] = _run43 ;驻地用户配置
-   $_run[44] = _run44 ;信审用户配置
-   $_run[45] = _run45 ;催收用户配置
+   $_run[43] = _run43 ;销售用户配置
+   $_run[44] = _run44 ;运营用户配置
+   $_run[45] = _run45 ;售后用户配置
 
 
    $_run[51] = _run51 ;自动重启系统
@@ -138,8 +177,8 @@ Func _main()
    Global $createUserPassword = "user-defined" ;设置本地用户名密码
 
    Global $domainName = "user-defined" ;AD域名，
-   Global $itUserName = "user-defined" ;域账户
-   Global $itPassword = "user-defined" ;域账户密码
+   Global $itUserName = "user-defined" ;IT管理员域账户
+   Global $itPassword = "user-defined" ;IT管理员域账户密码
 
    Global $fileSrvPath = "user-defined" ;安装文件所在的共享目录地址
 
@@ -158,7 +197,7 @@ Func _exit()
    Exit
 EndFunc
 
-;;驻地
+;;销售
 Func _chooseStation()
 
    For $i = 1 to 52
@@ -182,7 +221,7 @@ Func _chooseStation()
 
 EndFunc
 
-;;驻地(含VPN)
+;;销售(含VPN)
 Func _chooseStationWithVPN()
 
    For $i = 1 to 52
@@ -207,7 +246,7 @@ Func _chooseStationWithVPN()
 
 EndFunc
 
-;;信审
+;;运营
 Func _chooseCreditAduit()
 
    For $i = 1 to 52
@@ -231,7 +270,7 @@ Func _chooseCreditAduit()
 
 EndFunc
 
-;;催收
+;;售后
 Func _chooseCollection()
 
    For $i = 1 to 52
@@ -257,7 +296,7 @@ Func _chooseCollection()
 
 EndFunc
 
-;;选中“驻地用户配置”同时选中“安装Google Chrome"
+;;选中“销售用户配置”同时选中“安装Google Chrome"
 Func _userStation()
    If _GUICtrlButton_GetCheck($Checkbox[43]) Then
 	  GUICtrlSetState($Checkbox[41],1)
@@ -265,7 +304,7 @@ Func _userStation()
    EndIf
 EndFunc
 
-;;选中“信审用户配置”同时选中“安装Google Chrome"
+;;选中“运营用户配置”同时选中“安装Google Chrome"
 Func _userCreditAduit()
    If _GUICtrlButton_GetCheck($Checkbox[44]) Then
 	  GUICtrlSetState($Checkbox[22],1)
@@ -274,7 +313,7 @@ Func _userCreditAduit()
    EndIf
 EndFunc
 
-;;选中“催收用户配置”同时选中“安装Google Chrome"
+;;选中“售后用户配置”同时选中“安装Google Chrome"
 Func _userCollection()
    If _GUICtrlButton_GetCheck($Checkbox[45]) Then
 	  GUICtrlSetState($Checkbox[41],1)
@@ -1195,7 +1234,7 @@ Func _run24()
 
 EndFunc
 
-;;安装催收系统MinervaPro
+;;安装售后系统MinervaPro
 Func _run25()
 
    WinMinimizeAll()
@@ -1485,7 +1524,7 @@ Func _run42()
 
 EndFunc
 
-;;驻地用户配置
+;;销售用户配置
 Func _run43()
 
    WinMinimizeAll()
@@ -1498,7 +1537,7 @@ Func _run43()
 
 EndFunc
 
-;;信审用户配置
+;;运营用户配置
 Func _run44()
 
    WinMinimizeAll()
@@ -1511,7 +1550,7 @@ Func _run44()
 
 EndFunc
 
-;;催收用户配置
+;;售后用户配置
 Func _run45()
 
    WinMinimizeAll()
