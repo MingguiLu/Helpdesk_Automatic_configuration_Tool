@@ -16,7 +16,7 @@ Helpdesk_Automatic_configuration_Tool是一款Helpdesk桌面运维自动化配�
 6. 自动配置outlook及skype等
 
 配置说明：
-以下代码位于134 ~ 144行，user-defined部分请根据实际需求和场景自定义
+以下代码位于173 ~ 187行，user-defined部分请根据实际需求和场景自定义
 
 Global $rootUserName = "administrator" ;本地管理员administrator
 Global $rootPassword = "user-defined"  ;本地管理员密码

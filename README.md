@@ -1,3 +1,6 @@
+
+![](./Helpdesk_Automatic_configuration_Tool.png)
+
 #### 关于Helpdesk_Automatic_configuration_Tool
 
 Helpdesk_Automatic_configuration_Tool是一款Helpdesk桌面运维自动化配置的工具，由类BASIC语言的AutoIt v3 脚本编写，用于简化Helpdesk大量繁复的操作，通过GUI交互，实现以下功能，大幅解放Helpdesk桌面工程师的时间和精力，用于更高的技术学习和提升。
