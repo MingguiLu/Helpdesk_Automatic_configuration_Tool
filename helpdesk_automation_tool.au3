@@ -1,7 +1,7 @@
 #cs ----------------------------------------------------------------------------
 
 AutoIt Version: 3.3.14.2
-Author:     Miguel Louis
+Author:       Minggui Lu
 
 Script Function:
   Helpdesk_Automatic_configuration_Tool
